@@ -166,7 +166,7 @@ jobs:
         make -C src clean
     - name: Build for native OpenCL
       run: |
-        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP}
+        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} LDFLAGS="-framework OpenCL"
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
