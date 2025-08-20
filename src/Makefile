@@ -48,23 +48,24 @@ endif
 RM = rm -f
 INSTALL = install
 
-# MacOS specific flags
+# Detect OS
 OS = $(shell uname -s)
+
+# MacOS specific flags
 ifeq ($(OS), Darwin)
   ARCHFLAGS = -arch $(ARCH)
   OPENCL_LIB = -framework OpenCL
+  MATH_LIB =
 else
   ARCHFLAGS =
   OPENCL_LIB = -lOpenCL
+  MATH_LIB = -lm
 endif
 
 # where is the OpenCL SDK installed?
 AMD_APP_DIR = /opt/rocm/opencl
 AMD_APP_INCLUDE = -I$(AMD_APP_DIR)/include
 AMD_APP_LIB = -L$(AMD_APP_DIR)/lib/$(ARCH)
-
-# Change needed for compilation with amdgpu-pro
-# AMD_APP_DIR = /opt/amdgpu-pro/opencl
 
 # compiler settings for C and C++ files
 CC = gcc
@@ -74,7 +75,7 @@ CPPFLAGS =
 
 # Linker
 LD = $(CPP)
-LDFLAGS = $(ARCHFLAGS) $(BITS) $(STATIC) $(OPTIMIZE_FLAG) $(AMD_APP_LIB) $(OPENCL_LIB)
+LDFLAGS = $(ARCHFLAGS) $(BITS) $(STATIC) $(OPTIMIZE_FLAG) $(AMD_APP_LIB) $(OPENCL_LIB) $(MATH_LIB)
 
 CC_VERSION = $(shell $(CC) --version)
 
@@ -94,8 +95,6 @@ endif
 
 CSRC = sieve.c timer.c parse.c read_config.c mfaktc.c checkpoint.c \
 	signal_handler.c filelocking.c output.c
-
-# CLSRC = barrett15.cl  barrett.cl  common.cl  gpusieve.cl  mfakto_Kernels.cl  montgomery.cl  mul24.cl
 
 COBJS = $(CSRC:.c=.o) mfakto.o gpusieve.o perftest.o menu.o kbhit.o
 
@@ -132,7 +131,6 @@ sieve.o : sieve.c
 	$(INSTALL) -m 644 $< ..
 
 .PHONY: all clean
-
 
 ##############################################################################
 
