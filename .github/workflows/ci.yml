@@ -164,9 +164,14 @@ jobs:
     - name: Cleanup build
       run: |
         make -C src clean
-    - name: Build for native OpenCL
+    - name: Build with pocl
       run: |
-        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} LDFLAGS="-framework OpenCL"
+        make -C src -j "$(sysctl -n hw.ncpu)" \
+          CC=${CC} CPP=${CPP} \
+          AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
+          AMD_APP_LIB="$(pkg-config --libs-only-L pocl)" \
+          OPENCL_LIB="$(pkg-config --libs-only-l pocl | sed 's/-lm//')"
+
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
