@@ -162,7 +162,8 @@ jobs:
     - name: Workaround missing libm on macOS
       run: |
         ln -sf /usr/lib/libSystem.dylib ./libm.dylib
-        export DYLD_LIBRARY_PATH=$PWD:$DYLD_LIBRARY_PATH
+        echo "DYLD_LIBRARY_PATH=$PWD:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
+
 
 
     - name: Test
