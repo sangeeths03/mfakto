@@ -16,7 +16,6 @@ on:
       - 'reopened'
       - 'synchronize'
       - 'ready_for_review'
-  workflow_dispatch:
 
 jobs:
   Linux:
@@ -155,24 +154,25 @@ jobs:
     - name: Setup
       run: |
         brew install pocl
-    - name: Build and Test (default pocl)
+    - name: Build with pocl
       run: |
         make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" AMD_APP_LIB="$(pkg-config --libs pocl)"
-        ./mfakto -d 11 || true
+
+    - name: Workaround missing libm on macOS
+      run: |
+        # Create libm.dylib symlink to libSystem.dylib so PoCL can resolve -lm
+        mkdir -p /usr/local/lib
+        ln -sf /usr/lib/libSystem.dylib /usr/local/lib/libm.dylib
+
+    - name: Test
+      run: |
+        ./mfakto -d 11
     - name: Cleanup build
       run: |
         make -C src clean
-    - name: Fix missing libm symlink (macOS workaround)
+    - name: Build for native OpenCL
       run: |
-        sudo mkdir -p /usr/local/lib
-        sudo ln -s /usr/lib/libSystem.dylib /usr/local/lib/libm.dylib || true
-    - name: Build for Release (strip -lm)
-      run: |
-        make -C src -j "$(sysctl -n hw.ncpu)" \
-          CC=${CC} CPP=${CPP} \
-          AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
-          AMD_APP_LIB="$(pkg-config --libs-only-L pocl)" \
-          OPENCL_LIB="$(pkg-config --libs-only-l pocl | sed 's/-lm//')"
+        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP}
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
