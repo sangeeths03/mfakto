@@ -1,6 +1,7 @@
 name: mfakto CI
 
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
       - '**/*.txt'
