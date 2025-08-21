@@ -52,10 +52,10 @@ INSTALL = install
 OS = $(shell uname -s)
 ifeq ($(OS), Darwin)
   ARCHFLAGS = -arch $(ARCH)
-  OPENCL_LIB = -framework OpenCL -lm
+  OPENCL_LIB = -framework OpenCL
 else
   ARCHFLAGS =
-  OPENCL_LIB = -lOpenCL
+  OPENCL_LIB = -lOpenCL -lm
 endif
 
 # where is the OpenCL SDK installed?
@@ -74,7 +74,7 @@ CPPFLAGS =
 
 # Linker
 LD = $(CPP)
-LDFLAGS = $(ARCHFLAGS) $(BITS) $(STATIC) $(OPTIMIZE_FLAG) $(AMD_APP_LIB) $(OPENCL_LIB) -lm
+LDFLAGS = $(ARCHFLAGS) $(BITS) $(STATIC) $(OPTIMIZE_FLAG) $(AMD_APP_LIB) $(OPENCL_LIB) 
 
 CC_VERSION = $(shell $(CC) --version)
 
