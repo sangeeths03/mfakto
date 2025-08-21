@@ -52,7 +52,7 @@ INSTALL = install
 OS = $(shell uname -s)
 ifeq ($(OS), Darwin)
   ARCHFLAGS = -arch $(ARCH)
-  OPENCL_LIB = -framework OpenCL
+  OPENCL_LIB = -framework OpenCL -lm
 else
   ARCHFLAGS =
   OPENCL_LIB = -lOpenCL
