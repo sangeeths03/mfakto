@@ -161,9 +161,9 @@ jobs:
 
     - name: Workaround missing libm on macOS
       run: |
-        # Create libm.dylib symlink to libSystem.dylib so PoCL can resolve -lm
-        mkdir -p /usr/local/lib
-        ln -sf /usr/lib/libSystem.dylib /usr/local/lib/libm.dylib
+        ln -sf /usr/lib/libSystem.dylib ./libm.dylib
+        export DYLD_LIBRARY_PATH=$PWD:$DYLD_LIBRARY_PATH
+
 
     - name: Test
       run: |
