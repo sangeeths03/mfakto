@@ -160,13 +160,15 @@ jobs:
       - name: Build with pocl
         run: |
           export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+          # Strip -lm from pocl flags
           AMD_APP_LIB="$(pkg-config --libs pocl | sed 's/-lm//')"
           make -C src -j "$(sysctl -n hw.ncpu)" \
             CC=${CC} CPP=${CPP} \
             AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
-            AMD_APP_LIB="$AMD_APP_LIB -framework OpenCL" \
+            AMD_APP_LIB="$AMD_APP_LIB" \
             CFLAGS="-isysroot $SDKROOT" \
-            LDFLAGS="-isysroot $SDKROOT"
+            LDFLAGS="-isysroot $SDKROOT -framework OpenCL"
+
 
 
 
