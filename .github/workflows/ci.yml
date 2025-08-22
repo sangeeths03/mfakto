@@ -159,12 +159,17 @@ jobs:
   
       - name: Build with pocl
         run: |
-          AMD_APP_LIB="$(pkg-config --libs pocl | sed 's/-lm//')"
+          # Set SDKROOT so clang uses the correct macOS SDK
           export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+          # Strip -lm from pocl flags
+          AMD_APP_LIB="$(pkg-config --libs pocl | sed 's/-lm//')"
           make -C src -j "$(sysctl -n hw.ncpu)" \
             CC=${CC} CPP=${CPP} \
-            CFLAGS="-isysroot $SDKROOT $(pkg-config --cflags pocl)" \
-            AMD_APP_LIB="$AMD_APP_LIB"
+            AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
+            AMD_APP_LIB="$AMD_APP_LIB" \
+            CFLAGS="-isysroot $SDKROOT" \
+            LDFLAGS="-isysroot $SDKROOT"
+
 
       - name: Test
         run: |
