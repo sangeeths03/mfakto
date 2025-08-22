@@ -159,13 +159,13 @@ jobs:
   
       - name: Build with pocl
         run: |
-          # Strip -lm from pocl linker flags (not needed on macOS)
           AMD_APP_LIB="$(pkg-config --libs pocl | sed 's/-lm//')"
+          export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
           make -C src -j "$(sysctl -n hw.ncpu)" \
             CC=${CC} CPP=${CPP} \
-            AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
+            CFLAGS="-isysroot $SDKROOT $(pkg-config --cflags pocl)" \
             AMD_APP_LIB="$AMD_APP_LIB"
-  
+
       - name: Test
         run: |
           ./mfakto -d 11
@@ -176,7 +176,12 @@ jobs:
   
       - name: Build for native OpenCL
         run: |
-          make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP}
+          export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+          make -C src -j "$(sysctl -n hw.ncpu)" \
+            CC=${CC} CPP=${CPP} \
+            CFLAGS="-isysroot $SDKROOT" \
+            LDFLAGS="-isysroot $SDKROOT"
+
   
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
