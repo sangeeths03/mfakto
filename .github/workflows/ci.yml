@@ -145,63 +145,65 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-14] # You can add macos-15 later if needed
       fail-fast: false
     env:
       CC: clang
       CPP: clang++
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup
-      run: |
-        brew install pocl
-
-    - name: Build with pocl
-      run: |
-        # Strip -lm from pocl linker flags (not needed on macOS)
-        AMD_APP_LIB="$(pkg-config --libs pocl | sed 's/-lm//')"
-        make -C src -j "$(sysctl -n hw.ncpu)" \
-          CC=${CC} CPP=${CPP} \
-          AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
-          AMD_APP_LIB="$AMD_APP_LIB"
-
-    - name: Test
-      run: |
-        ./mfakto -d 11
-
-    - name: Cleanup build
-      run: |
-        make -C src clean
-
-    - name: Build for native OpenCL
-      run: |
-        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP}
-
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: mfakto-${{ matrix.os }}
-        path: |
-          *.cl
-          Changelog-mfakto.txt
-          COPYING
-          datatypes.h
-          mfakto
-          mfakto.ini
-          README-SpecialVersions.txt
-          README.txt
-          tf_debug.h
-          todo.txt
-
-    - name: Create artifact and release asset
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        tar cvjf mfakto-${{ matrix.os }}.tar.bz2 *.cl Changelog-mfakto.txt COPYING datatypes.h mfakto mfakto.ini README-SpecialVersions.txt README.txt tf_debug.h todo.txt
-
-    - name: Upload release assets on release
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          mfakto-${{ matrix.os }}.tar.bz2
+      - uses: actions/checkout@v4
+  
+      - name: Setup
+        run: |
+          brew install pocl
+  
+      - name: Build with pocl
+        run: |
+          # Strip -lm from pocl linker flags (not needed on macOS)
+          AMD_APP_LIB="$(pkg-config --libs pocl | sed 's/-lm//')"
+          make -C src -j "$(sysctl -n hw.ncpu)" \
+            CC=${CC} CPP=${CPP} \
+            AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
+            AMD_APP_LIB="$AMD_APP_LIB"
+  
+      - name: Test
+        run: |
+          ./mfakto -d 11
+  
+      - name: Cleanup build
+        run: |
+          make -C src clean
+  
+      - name: Build for native OpenCL
+        run: |
+          make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP}
+  
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfakto-${{ matrix.os }}
+          path: |
+            *.cl
+            Changelog-mfakto.txt
+            COPYING
+            datatypes.h
+            mfakto
+            mfakto.ini
+            README-SpecialVersions.txt
+            README.txt
+            tf_debug.h
+            todo.txt
+  
+      - name: Create artifact and release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tar cvjf mfakto-${{ matrix.os }}.tar.bz2 \
+            *.cl Changelog-mfakto.txt COPYING datatypes.h mfakto mfakto.ini \
+            README-SpecialVersions.txt README.txt tf_debug.h todo.txt
+  
+      - name: Upload release assets on release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            mfakto-${{ matrix.os }}.tar.bz2
