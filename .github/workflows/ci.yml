@@ -152,6 +152,13 @@ jobs:
     - name: Setup
       run: |
         brew install pocl
+
+    - name: Adjust ini for PoCL CPU
+      run: |
+        sed -i.bak 's/^SieveOnGPU=.*/SieveOnGPU=0/' mfakto.ini
+        sed -i.bak 's/^GPUType=.*/GPUType=CPU/' mfakto.ini
+
+    
     - name: Build with pocl
       run: |
         make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" AMD_APP_LIB="$(pkg-config --libs pocl) -lm"
