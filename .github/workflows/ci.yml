@@ -179,7 +179,8 @@ jobs:
       run: |
         echo "PATH=$PATH"
         which poclcc || echo "PoCL compiler not found"
-        poclcc --version || echo "PoCL not working"
+        brew info pocl
+
 
 
     - name: Build with pocl
