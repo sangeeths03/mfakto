@@ -27,9 +27,12 @@ jobs:
       CPP: g++
     steps:
     - uses: actions/checkout@v4
-    - name: Setup
+    - name: Setup PoCL 6.0_1
       run: |
-        sudo apt-get install -y ocl-icd-opencl-dev pocl-opencl-icd
+        brew tap-new my-org/oldpocl
+        brew extract pocl my-org/oldpocl
+        brew install my-org/oldpocl/pocl@6.0_1 || echo "Falling back to latest pocl"
+
     - name: Build
       run: |
         make -C src -O -j "$(nproc)" CC=${CC} CPP=${CPP}
