@@ -1,7 +1,6 @@
 name: mfakto CI
 
 on:
-  workflow_dispatch:
   push:
     paths-ignore:
       - '**/*.txt'
@@ -29,9 +28,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Setup
       run: |
-        brew install pocl
-
-
+        sudo apt-get install -y ocl-icd-opencl-dev pocl-opencl-icd
     - name: Build
       run: |
         make -C src -O -j "$(nproc)" CC=${CC} CPP=${CPP}
@@ -151,31 +148,15 @@ jobs:
       CPP: clang++
     steps:
     - uses: actions/checkout@v4
-    - name: Setup PoCL 6.0_1
+    - name: Setup
       run: |
-        brew tap-new my-org/oldpocl
-        brew extract pocl my-org/oldpocl
-        brew install my-org/oldpocl/pocl@6.0_1 || echo "Falling back to latest pocl"
-
-
-    - name: Adjust ini for PoCL CPU
-      run: |
-        sed -i.bak 's/^SieveOnGPU=.*/SieveOnGPU=0/' src/mfakto.ini
-        sed -i.bak 's/^GPUType=.*/GPUType=CPU/' src/mfakto.ini
-
-    
+        brew install pocl
     - name: Build with pocl
       run: |
-        make -C src -j "$(sysctl -n hw.ncpu)" \
-          CC=${CC} CPP=${CPP} \
-          AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" \
-          AMD_APP_LIB="$(pkg-config --libs pocl)"
-    
-    - name: Test CPU mode
-      working-directory: src
+        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" AMD_APP_LIB="$(pkg-config --libs pocl)"
+    - name: Test
       run: |
-        ./mfakto -n 1 -tf 1000 -d 11
-
+        ./mfakto -d 11
     - name: Cleanup build
       run: |
         make -C src clean
