@@ -27,11 +27,10 @@ jobs:
       CPP: g++
     steps:
     - uses: actions/checkout@v4
-    - name: Setup PoCL 6.0_1
+    - name: Setup
       run: |
-        brew tap-new my-org/oldpocl
-        brew extract pocl my-org/oldpocl
-        brew install my-org/oldpocl/pocl@6.0_1 || echo "Falling back to latest pocl"
+        brew install pocl
+
 
     - name: Build
       run: |
