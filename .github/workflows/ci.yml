@@ -153,30 +153,27 @@ jobs:
       id: cache-pocl
       uses: actions/cache@v4
       with:
-        path: /usr/local/opt/pocl@6
+        path: |
+          /usr/local/opt/pocl
+          /opt/homebrew/opt/pocl
         key: ${{ runner.os }}-pocl-6.0.1
-
+    
     - name: Install PoCL 6.0.1 via Homebrew commit
       if: steps.cache-pocl.outputs.cache-hit != 'true'
       run: |
-        # Prerequisites
         brew install cmake llvm hwloc pkg-config
-
-        # Clone homebrew-core and checkout the commit containing PoCL 6.0.1
         git clone https://github.com/Homebrew/homebrew-core
         cd homebrew-core
         git checkout 165dae39781a8150f265d2fae6ea036964dbaad8
-
-        # Install PoCL 6.0.1 formula from this commit
-        brew install --formula Formula/p/pocl.rb
-
-        # Confirm installation directory exists
-        ls -l /usr/local/opt/pocl || echo "PoCL install directory missing"
-
+        brew install ./Formula/p/pocl.rb
+        ls -l /usr/local/opt/pocl || true
+        ls -l /opt/homebrew/opt/pocl || true
+    
     - name: Update PATH and PKG_CONFIG_PATH
       run: |
         echo "/usr/local/opt/pocl/bin" >> "$GITHUB_PATH"
-        echo "PKG_CONFIG_PATH=/usr/local/opt/pocl/lib/pkgconfig:$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
+        echo "/opt/homebrew/opt/pocl/bin" >> "$GITHUB_PATH"
+        echo "PKG_CONFIG_PATH=/usr/local/opt/pocl/lib/pkgconfig:/opt/homebrew/opt/pocl/lib/pkgconfig:$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
 
     - name: Verify PoCL installation
       run: |
