@@ -148,9 +148,12 @@ jobs:
       CPP: clang++
     steps:
     - uses: actions/checkout@v4
-    - name: Setup
+    - name: Setup PoCL 6.0.1
       run: |
-        brew install pocl
+        brew tap-new my-org/oldpocl
+        brew extract --version=6.0.1 pocl my-org/oldpocl
+        brew install my-org/oldpocl/pocl@6.0.1
+
     - name: Build with pocl
       run: |
         make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" AMD_APP_LIB="$(pkg-config --libs pocl)"
