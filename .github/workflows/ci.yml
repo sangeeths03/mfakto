@@ -151,9 +151,12 @@ jobs:
       CPP: clang++
     steps:
     - uses: actions/checkout@v4
-    - name: Setup
+    - name: Setup PoCL 6.0_1
       run: |
-        brew install pocl
+        brew tap-new my-org/oldpocl
+        brew extract pocl my-org/oldpocl
+        brew install my-org/oldpocl/pocl@6.0_1 || echo "Falling back to latest pocl"
+
 
     - name: Adjust ini for PoCL CPU
       run: |
