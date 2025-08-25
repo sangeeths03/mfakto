@@ -155,8 +155,8 @@ jobs:
 
     - name: Adjust ini for PoCL CPU
       run: |
-        sed -i.bak 's/^SieveOnGPU=.*/SieveOnGPU=0/' mfakto.ini
-        sed -i.bak 's/^GPUType=.*/GPUType=CPU/' mfakto.ini
+        sed -i.bak 's/^SieveOnGPU=.*/SieveOnGPU=0/' src/mfakto.ini
+        sed -i.bak 's/^GPUType=.*/GPUType=CPU/' src/mfakto.ini
 
     
     - name: Build with pocl
