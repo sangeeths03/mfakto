@@ -164,8 +164,9 @@ jobs:
         tar -xzf pocl-6.0.1.tar.gz
         cd pocl-6.0.1
         mkdir build && cd build
-        cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/opt/pocl@6 \
-                 -DWITH_LLVM_CONFIG=$(brew --prefix llvm)/bin/llvm-config
+        cmake .. \
+          -DCMAKE_INSTALL_PREFIX=/usr/local/opt/pocl@6 \
+          -DWITH_LLVM_CONFIG=$(brew --prefix llvm)/bin/llvm-config
         make -j"$(sysctl -n hw.ncpu)"
         sudo make install
 
@@ -178,6 +179,7 @@ jobs:
       run: |
         which poclcc || echo "PoCL compiler not found"
         poclcc --version || echo "PoCL not working"
+
 
 
     - name: Build with pocl
