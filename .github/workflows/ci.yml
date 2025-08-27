@@ -150,26 +150,41 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install PoCL 6.0.1 via Homebrew commit
+    - name: Install PoCL 6.0.1
       run: |
-        git clone https://github.com/Homebrew/homebrew-core
-        cd homebrew-core
-        git checkout 165dae39781a8150f265d2fae6ea036964dbaad8
-        brew install ./Formula/p/pocl.rb
-        ls -l /usr/local/opt/pocl || true
-        ls -l /opt/homebrew/opt/pocl || true
-    
-    - name: Update PATH and PKG_CONFIG_PATH
-      run: |
-        echo "/usr/local/opt/pocl/bin" >> "$GITHUB_PATH"
-        echo "/opt/homebrew/opt/pocl/bin" >> "$GITHUB_PATH"
-        echo "PKG_CONFIG_PATH=/usr/local/opt/pocl/lib/pkgconfig:/opt/homebrew/opt/pocl/lib/pkgconfig:$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
+        echo "Installing PoCL 6.0.1..."
+        pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
+        pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
+        mkdir -p /tmp/pocl
+        curl -fsSL "$pocl_rb_link" -o /tmp/pocl/pocl.rb
+        brew install /tmp/pocl/pocl.rb
 
-    - name: Verify PoCL installation
+    - name: Verify PoCL Installation
       run: |
         echo "PATH=$PATH"
-        which poclcc || echo "PoCL compiler not found"
+        poclcc --version || echo "PoCL compiler not found"
         brew info pocl
+    
+    # - name: Install PoCL 6.0.1 with homebrew 
+    #   run: |
+    #     git clone https://github.com/Homebrew/homebrew-core
+    #     cd homebrew-core
+    #     git checkout 165dae39781a8150f265d2fae6ea036964dbaad8
+    #     brew install ./Formula/p/pocl.rb
+    #     ls -l /usr/local/opt/pocl || true
+    #     ls -l /opt/homebrew/opt/pocl || true
+    
+    # - name: Update PATH and PKG_CONFIG_PATH
+    #   run: |
+    #     echo "/usr/local/opt/pocl/bin" >> "$GITHUB_PATH"
+    #     echo "/opt/homebrew/opt/pocl/bin" >> "$GITHUB_PATH"
+    #     echo "PKG_CONFIG_PATH=/usr/local/opt/pocl/lib/pkgconfig:/opt/homebrew/opt/pocl/lib/pkgconfig:$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
+
+    # - name: Verify PoCL installation
+    #   run: |
+    #     echo "PATH=$PATH"
+    #     which poclcc || echo "PoCL compiler not found"
+    #     brew info pocl
 
 
 
