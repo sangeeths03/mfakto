@@ -150,20 +150,23 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install PoCL 6.0.1
-      run: |
-        echo "Installing PoCL 6.0.1..."
-        pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
-        pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
-        mkdir -p /tmp/pocl
-        curl -fsSL "$pocl_rb_link" -o /tmp/pocl/pocl.rb
-        brew install /tmp/pocl/pocl.rb
+    # - name: Install PoCL 6.0.1
+    #   run: |
+    #     echo "Installing PoCL 6.0.1..."
+    #     pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
+    #     pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
+    #     mkdir -p /tmp/pocl
+    #     curl -fsSL "$pocl_rb_link" -o /tmp/pocl/pocl.rb
+    #     brew install /tmp/pocl/pocl.rb
 
-    - name: Verify PoCL Installation
+    # - name: Verify PoCL Installation
+    #   run: |
+    #     echo "PATH=$PATH"
+    #     poclcc --version || echo "PoCL compiler not found"
+    #     brew info pocl
+    - name: Setup
       run: |
-        echo "PATH=$PATH"
-        poclcc --version || echo "PoCL compiler not found"
-        brew info pocl
+        brew install pocl
     
     # - name: Install PoCL 6.0.1 with homebrew 
     #   run: |
