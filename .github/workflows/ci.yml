@@ -137,72 +137,73 @@ jobs:
       with:
         files: |
            mfakto-windows-msys2.zip
-  MacOS:
-    name: MacOS
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-13, macos-14]
-      fail-fast: false
-    env:
-      CC: clang
-      CPP: clang++
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Update Homebrew to latest stable version
-      run: brew update
-
-    # workaround for PoCL 7.0[.x] issues - see https://github.com/actions/runner-images/issues/12775#issuecomment-3226624291
-    - name: Install PoCL 6.0.1
-      run: |
-        pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
-        pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
-        mkdir -p /tmp/pocl
-        curl -fsSL "$pocl_rb_link" -o /tmp/pocl/pocl.rb
-        brew install --formula /tmp/pocl/pocl.rb
-
-
-    - name: Verify PoCL Installation
-      run: |
-        echo "PATH=$PATH"
-        poclcc --version || echo "PoCL compiler not found"
-        brew info pocl
-    
-    - name: Build with pocl
-      run: |
-        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" AMD_APP_LIB="$(pkg-config --libs pocl)"
-    - name: Test
-      run: |
-        ./mfakto -d 11
-    - name: Cleanup build
-      run: |
-        make -C src clean
-    - name: Build for native OpenCL
-      run: |
-        make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP}
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: mfakto-${{ matrix.os }}
-        path: |
-          *.cl
-          Changelog-mfakto.txt
-          COPYING
-          datatypes.h
-          mfakto
-          mfakto.ini
-          README-SpecialVersions.txt
-          README.txt
-          tf_debug.h
-          todo.txt
-    - name: Create artifact and release asset
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        tar cvjf mfakto-${{ matrix.os }}.tar.bz2 *.cl Changelog-mfakto.txt COPYING datatypes.h mfakto mfakto.ini README-SpecialVersions.txt README.txt tf_debug.h todo.txt
-    - name: Upload release assets on release
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          mfakto-${{ matrix.os }}.tar.bz2
+  macOS:
+      name: macOS
+      runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          os: [macos-13, macos-14]
+        fail-fast: false
+      env:
+        CC: clang
+        CPP: clang++
+        # needed for Homebrew 4.6.4 and above
+        HOMEBREW_DEVELOPER: '1'
+      steps:
+      - uses: actions/checkout@v4
+  
+      # - name: Install dependencies
+      #   run: |
+      #     brew install pocl
+  
+      # workaround for Homebrew bug - see https://github.com/Homebrew/brew/issues/20568
+      # to do: remove this once the macOS runners have been updated to use
+      # Homebrew 4.6.8 or above
+      - name: Update Homebrew to latest stable version
+        run: brew update
+  
+      # workaround for PoCL 7.0[.x] issues - see https://github.com/actions/runner-images/issues/12775#issuecomment-3226624291
+      - name: Install PoCL 6.0.1
+        run: |
+          pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
+          pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
+          mkdir -p /tmp/pocl
+          curl -fsSL "$pocl_rb_link" -o /tmp/pocl/pocl.rb
+          brew install --formula /tmp/pocl/pocl.rb
+      - name: Build with PoCL
+        run: |
+          make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP} AMD_APP_INCLUDE="$(pkg-config --cflags pocl)" AMD_APP_LIB="$(pkg-config --libs pocl)"
+      - name: Test
+        run: |
+          ./mfakto -d 11
+      - name: Clean up build
+        run: |
+          make -C src clean
+      - name: Build for native OpenCL
+        run: |
+          make -C src -j "$(sysctl -n hw.ncpu)" CC=${CC} CPP=${CPP}
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfakto-${{ matrix.os }}
+          path: |
+            *.cl
+            Changelog-mfakto.txt
+            COPYING
+            datatypes.h
+            mfakto
+            mfakto.ini
+            README-SpecialVersions.txt
+            README.txt
+            tf_debug.h
+            todo.txt
+      - name: Create artifacts and release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tar cvjf mfakto-${{ matrix.os }}.tar.bz2 *.cl Changelog-mfakto.txt COPYING datatypes.h mfakto mfakto.ini README-SpecialVersions.txt README.txt tf_debug.h todo.txt
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            mfakto-${{ matrix.os }}.tar.bz2
