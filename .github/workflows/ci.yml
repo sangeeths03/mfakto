@@ -150,22 +150,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Update Homebrew to latest stable version
+      run: brew update
+
+    # workaround for PoCL 7.0[.x] issues - see https://github.com/actions/runner-images/issues/12775#issuecomment-3226624291
     - name: Install PoCL 6.0.1
       run: |
-        echo "Installing PoCL 6.0.1..."
         pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
         pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
-    
-        # Prepare a local tap folder
-        mkdir -p /tmp/local-pocl/Formula/p
-        curl -fsSL "$pocl_rb_link" -o /tmp/local-pocl/Formula/p/pocl.rb
-    
-        # Tap the local folder directly (no git init needed)
-        brew tap local/pocl /tmp/local-pocl
-    
-        # Install from the tapped formula
-        brew install local/pocl/pocl
-
+        mkdir -p /tmp/pocl
+        curl -fsSL "$pocl_rb_link" -o /tmp/pocl/pocl.rb
+        brew install --formula /tmp/pocl/pocl.rb
 
 
     - name: Verify PoCL Installation
