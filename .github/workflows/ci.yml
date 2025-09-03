@@ -156,13 +156,16 @@ jobs:
         pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
         pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
     
-        mkdir -p /tmp/homebrew-pocl/Formula/p
-        curl -fsSL "$pocl_rb_link" -o /tmp/homebrew-pocl/Formula/p/pocl.rb
+        # Prepare a local tap folder
+        mkdir -p /tmp/local-pocl/Formula/p
+        curl -fsSL "$pocl_rb_link" -o /tmp/local-pocl/Formula/p/pocl.rb
     
-        brew tap-new local/pocl
-        brew tap local/pocl /tmp/homebrew-pocl
+        # Tap the local folder directly (no git init needed)
+        brew tap local/pocl /tmp/local-pocl
     
+        # Install from the tapped formula
         brew install local/pocl/pocl
+
 
 
     - name: Verify PoCL Installation
