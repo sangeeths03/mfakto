@@ -155,9 +155,15 @@ jobs:
         echo "Installing PoCL 6.0.1..."
         pocl_commit="165dae39781a8150f265d2fae6ea036964dbaad8"
         pocl_rb_link="https://raw.githubusercontent.com/Homebrew/homebrew-core/$pocl_commit/Formula/p/pocl.rb"
-        mkdir -p /tmp/pocl
-        curl -fsSL "$pocl_rb_link" -o /tmp/pocl/pocl.rb
-        brew install /tmp/pocl/pocl.rb
+    
+        mkdir -p /tmp/homebrew-pocl/Formula/p
+        curl -fsSL "$pocl_rb_link" -o /tmp/homebrew-pocl/Formula/p/pocl.rb
+    
+        brew tap-new local/pocl
+        brew tap local/pocl /tmp/homebrew-pocl
+    
+        brew install local/pocl/pocl
+
 
     - name: Verify PoCL Installation
       run: |
